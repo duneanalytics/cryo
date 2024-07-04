@@ -9,9 +9,14 @@ pub(crate) trait SortableDataFrame {
 impl SortableDataFrame for Result<DataFrame, CollectError> {
     fn sort_by_schema(self, schema: &Table) -> Self {
         match (self, &schema.sort_columns) {
-            (Ok(df), Some(sort_columns)) => {
-                df.sort(sort_columns, false, false).map_err(CollectError::PolarsError)
-            }
+            (Ok(df), Some(sort_columns)) => df
+                .sort(
+                    sort_columns,
+                    SortMultipleOptions::new()
+                        .with_maintain_order(false)
+                        .with_order_descending(false),
+                )
+                .map_err(CollectError::PolarsError),
             (df, _) => df,
         }
     }
